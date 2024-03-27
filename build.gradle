@@ -11,6 +11,10 @@ java {
 	sourceCompatibility = '17'
 }
 
+bootJar {
+	mainClass = 'com.coders.commagateway.CommaGatewayApplication'
+}
+
 repositories {
 	mavenCentral()
 }

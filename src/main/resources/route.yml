@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: "route"
+
+
+  cloud:
+    gateway:
+      routes:
+        - id: frontend_route
+          uri: http://frontend:80
+          predicates:
+            - Path=/frontend/**
+        - id: backend_route
+          uri: http://backend:8080
+          predicates:
+            - Path=/backend/**
+        - id: authentication_route
+          uri: http://auth:8080
+          predicates:
+            - Path=/auth/**
