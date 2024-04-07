@@ -8,7 +8,7 @@ spring:
     gateway:
       routes:
         - id: frontend_route
-          uri: http://frontend:80
+          uri: http://frontend:80/
           predicates:
             - Path=/frontend/**
         - id: backend_route
@@ -16,6 +16,9 @@ spring:
           predicates:
             - Path=/backend/**
         - id: authentication_route
-          uri: http://auth:8080
+          uri: http://authentication:8082
           predicates:
             - Path=/auth/**
+
+      loadbalancer:
+        use404: true
