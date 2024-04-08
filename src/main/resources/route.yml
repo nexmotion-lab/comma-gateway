@@ -8,11 +8,11 @@ spring:
     gateway:
       routes:
         - id: frontend_route
-          uri: http://frontend:8888/
+          uri: http://frontend:80/
           predicates:
             - Path=/frontend/**
         - id: backend_route
-          uri: http://backend:8081
+          uri: http://backend:8080
           predicates:
             - Path=/backend/**
         - id: authentication_route
