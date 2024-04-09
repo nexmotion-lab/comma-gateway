@@ -1,4 +1,21 @@
 spring:
-  profiles:
-    include:
-      - route
+  cloud:
+    gateway:
+      routes:
+        - id: FRONT_RESOURCE_SERVICE
+          uri: https://front:80
+          predicates:
+            - Path=/home
+        - id: DIARY_SERVICE
+          uri: http://backend:8080
+          predicates:
+            - Path=/diary/**
+        - id: AUTHENTICATION_SERVICE
+          uri: http://authentication:8084
+          predicates:
+            - Path=/authentication/**
+
+    discovery:
+      locator:
+        enabled: true
+        lowerCaseServiceId: true
