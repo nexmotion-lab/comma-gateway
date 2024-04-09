@@ -3,19 +3,15 @@ spring:
     gateway:
       routes:
         - id: FRONT_RESOURCE_SERVICE
-          uri: http://localhost:8888
+          uri: http://front:80
           predicates:
             - Path=/home
         - id: DIARY_SERVICE
-          uri: http://localhost:8080
+          uri: http://backend:8080
           predicates:
             - Path=/diary/**
         - id: AUTHENTICATION_SERVICE
-          uri: http://localhost:8084
+          uri: http://authentication:8084
           predicates:
-            - Path=/authentication/**
+            - Path=/auth/**
 
-    discovery:
-      locator:
-        enabled: true
-        lowerCaseServiceId: true
