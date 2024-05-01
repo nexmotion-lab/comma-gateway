@@ -1,17 +1,32 @@
 spring:
+  application:
+    name: gateway
+  profiles:
+    active: dev
   cloud:
-    gateway:
-      routes:
-        - id: FRONT_RESOURCE_SERVICE
-          uri: http://front:80
-          predicates:
-            - Path=/home
-        - id: DIARY_SERVICE
-          uri: http://backend:8080
-          predicates:
-            - Path=/diary/**
-        - id: AUTHENTICATION_SERVICE
-          uri: http://authentication:8084
-          predicates:
-            - Path=/auth/**
+    config:
+      fail-fast: true
+      retry:
+        initial-interval: 10000
+        max-attempts: 5
+        multiplier: 1.5
+      request-connect-timeout: 2000
+      request-read-timeout: 10000
+  config:
+    import: "configserver:http://localhost:8087"
 
+management:
+  endpoint:
+    gateway:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    com.netflix: WARN
+    org.springframework.web: WARN
+    com.optimagrowth: DEBUG
