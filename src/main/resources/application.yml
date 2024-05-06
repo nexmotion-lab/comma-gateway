@@ -13,7 +13,9 @@ spring:
       request-connect-timeout: 2000
       request-read-timeout: 10000
   config:
-    import: "configserver:http://localhost:8087"
+    import: "configserver:http://config-server:8087"
+  main:
+    web-application-type: reactive
 
 management:
   endpoint:
@@ -30,3 +32,9 @@ logging:
     com.netflix: WARN
     org.springframework.web: WARN
     com.optimagrowth: DEBUG
+
+jwt:
+  secretKey: efwalfjiiljgkneiegojioa8e
+  access:
+    header: Authorization
+
