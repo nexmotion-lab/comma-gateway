@@ -2,27 +2,35 @@ package com.coders.commagateway.security;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.coders.commagateway.security.jwt.JwtService;
+import com.coders.commagateway.security.jwt.TokenResponse;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 public class JwtTokenAuthentication implements Authentication {
 
     private String token;
     private boolean isVerified = false;
-    private CustomPrincipal customPrincipal;
+    private String email;
     private String role;
-    private final JwtService jwtService = new JwtService();
+
+
+    @Getter
+    @Setter
+    private TokenResponse reissuanceToken;
+
 
     public JwtTokenAuthentication(DecodedJWT token) {
         this.token = token.getToken();
-        this.customPrincipal = new CustomPrincipal(token.getClaim(jwtService.EMAIL_CLAIM).asString(),
-                token.getClaim(jwtService.SOCIAL_TYPE_CLAIM).asString());
-        this.role = token.getClaim(jwtService.ROLE).asString();
+        this.email = token.getClaim(JwtService.EMAIL_CLAIM).asString();
     }
 
     @Override
@@ -45,7 +53,7 @@ public class JwtTokenAuthentication implements Authentication {
 
     @Override
     public Object getPrincipal() {
-        return customPrincipal;
+        return email;
     }
 
     @Override
@@ -60,10 +68,11 @@ public class JwtTokenAuthentication implements Authentication {
 
     @Override
     public String getName() {
-        if (customPrincipal != null) {
-            return customPrincipal.getName();
-        }
-        return null;
+        return email;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
 }
