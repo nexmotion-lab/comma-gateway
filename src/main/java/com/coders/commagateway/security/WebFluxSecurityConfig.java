@@ -52,7 +52,7 @@ public class WebFluxSecurityConfig {
                 .csrf().disable()
                 .formLogin().disable()
                 .authorizeExchange()
-                .pathMatchers("/login").permitAll()
+                .pathMatchers("/login/**").permitAll()
                 .pathMatchers("/oauth2/**").permitAll()
                 .anyExchange().authenticated()
                 .and()
