@@ -1,7 +1,11 @@
 package com.coders.commagateway.filter;
 
+import com.coders.commagateway.filter.service.FindIdService;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -16,11 +20,17 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Component
+@Slf4j
 public class AddAuthInfoGatewayFilterFactory extends AbstractGatewayFilterFactory<AddAuthInfoGatewayFilterFactory.Config> {
 
-    public AddAuthInfoGatewayFilterFactory() {
+    private final FindIdService findIdService;
+
+    @Autowired
+    public AddAuthInfoGatewayFilterFactory(FindIdService findIdService) {
         super(Config.class);
+        this.findIdService = findIdService;
     }
+
 
     @Override
     public GatewayFilter apply(Config config) {
@@ -28,15 +38,23 @@ public class AddAuthInfoGatewayFilterFactory extends AbstractGatewayFilterFactor
                 ReactiveSecurityContextHolder.getContext()
                         .map(SecurityContext::getAuthentication)
                         .filter(auth -> auth.isAuthenticated() && auth.getPrincipal() != null)
-                        .map(authentication -> {
-                            ServerHttpRequest request = exchange.getRequest().mutate()
-                                    .header("X-User-Email", authentication.getName())
-                                    .build();
-                            return exchange.mutate().request(request).build();
-                        })
+                        .flatMap(authentication ->
+                                findIdService.findAccountIdByEmail(authentication.getName())
+                                        .map(id -> {
+                                            ServerHttpRequest request = exchange.getRequest().mutate()
+                                                    .header("X-User-Id", id)
+                                                    .build();
+                                            return exchange.mutate().request(request).build();
+                                        })
+                                        .onErrorResume(e -> {
+                                            log.error("Error fetching account ID for email {}: {}", authentication.getName(), e.getMessage());
+                                            return Mono.just(exchange);
+                                        })
+                        )
                         .defaultIfEmpty(exchange)
                         .flatMap(chain::filter);
     }
+
 
     @Getter
     @Setter
