@@ -54,6 +54,7 @@ public class WebFluxSecurityConfig {
                 .authorizeExchange()
                 .pathMatchers("/login/**").permitAll()
                 .pathMatchers("/oauth2/**").permitAll()
+                .pathMatchers("/home/**").permitAll()
                 .anyExchange().authenticated()
                 .and()
                 .addFilterAt(authenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
