@@ -44,6 +44,8 @@ public class AddAuthInfoGatewayFilterFactory extends AbstractGatewayFilterFactor
                                             ServerHttpRequest request = exchange.getRequest().mutate()
                                                     .header("X-User-Id", id)
                                                     .build();
+                                            log.info("Added X-User-Id header: {}", id);
+
                                             return exchange.mutate().request(request).build();
                                         })
                                         .onErrorResume(e -> {
