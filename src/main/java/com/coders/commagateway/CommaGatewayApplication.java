@@ -12,5 +12,4 @@ public class CommaGatewayApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CommaGatewayApplication.class, args);
 	}
-
 }

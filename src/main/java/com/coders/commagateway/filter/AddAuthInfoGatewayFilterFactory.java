@@ -34,28 +34,30 @@ public class AddAuthInfoGatewayFilterFactory extends AbstractGatewayFilterFactor
 
     @Override
     public GatewayFilter apply(Config config) {
-        log.info("apply ");
-        return (exchange, chain) ->
-                ReactiveSecurityContextHolder.getContext()
-                        .map(SecurityContext::getAuthentication)
-                        .filter(auth -> auth.isAuthenticated() && auth.getPrincipal() != null)
-                        .flatMap(authentication ->
-                                findIdService.findAccountIdByEmail(authentication.getName())
-                                        .map(id -> {
-                                            ServerHttpRequest request = exchange.getRequest().mutate()
-                                                    .header("X-User-Id", id)
-                                                    .build();
-                                            log.info("Added X-User-Id header: {}", id);
+        return (exchange, chain) -> ReactiveSecurityContextHolder.getContext()
+                .doOnNext(context -> log.info("SecurityContext: {}", context))
+                .map(context -> {
+                    return context.getAuthentication();
+                })
+                .filter(auth -> {
+                    return auth.isAuthenticated() && auth.getPrincipal() != null;
+                })
+                .flatMap(authentication -> {
+                    return findIdService.findAccountIdByEmail(authentication.getName())
+                            .map(id -> {
+                                ServerHttpRequest request = exchange.getRequest().mutate()
+                                        .header("X-User-Id", id)
+                                        .build();
+                                return exchange.mutate().request(request).build();
+                            })
+                            .onErrorResume(e -> {
+                                log.error("Error fetching account ID for email {}: {}", authentication.getName(), e.getMessage());
+                                return Mono.just(exchange);
+                            });
+                })
+                .defaultIfEmpty(exchange)
+                .flatMap(chain::filter);
 
-                                            return exchange.mutate().request(request).build();
-                                        })
-                                        .onErrorResume(e -> {
-                                            log.error("Error fetching account ID for email {}: {}", authentication.getName(), e.getMessage());
-                                            return Mono.just(exchange);
-                                        })
-                        )
-                        .defaultIfEmpty(exchange)
-                        .flatMap(chain::filter);
     }
 
 
