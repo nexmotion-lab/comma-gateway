@@ -35,7 +35,6 @@ public class AddAuthInfoGatewayFilterFactory extends AbstractGatewayFilterFactor
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> ReactiveSecurityContextHolder.getContext()
-                .doOnNext(context -> log.info("SecurityContext: {}", context))
                 .map(context -> {
                     return context.getAuthentication();
                 })
