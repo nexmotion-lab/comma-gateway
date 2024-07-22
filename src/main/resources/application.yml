@@ -2,7 +2,7 @@ spring:
   application:
     name: gateway
   profiles:
-    active: test
+    active: dev
   cloud:
     config:
       fail-fast: true
