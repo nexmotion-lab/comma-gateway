@@ -28,7 +28,7 @@ RUN $JAVA_HOME/bin/jdeps \
     /app/app.jar > /app/deps.info
 
 RUN $JAVA_HOME/bin/jlink \
-    --add-modules $(cat /app/deps.info) \
+    --add-modules $(cat /app/deps.info),jdk.crypto.ec \
     --strip-debug \
     --no-man-pages \
     --no-header-files \

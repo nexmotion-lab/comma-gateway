@@ -64,7 +64,7 @@ public class WebFluxSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:8100")); // 모든 출처 허용
+        corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:8100", "http://localhost")); // 모든 출처 허용
         corsConfig.setMaxAge(3600L); // pre-flight cache duration
         corsConfig.setAllowedMethods(Arrays.asList(
                 HttpMethod.GET.name(),
