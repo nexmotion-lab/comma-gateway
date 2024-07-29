@@ -27,6 +27,8 @@ public class JwtAuthenticationSuccessHandler implements ServerAuthenticationSucc
                         ResponseCookie accessCookie = ResponseCookie.from("accessToken", reissuanceToken.getAccessToken())
                                 .httpOnly(true)
                                 .path("/")
+                                .secure(true)
+                                .sameSite("None")
                                 .maxAge(3600)
                                 .build();
                         response.addCookie(accessCookie);
@@ -36,6 +38,8 @@ public class JwtAuthenticationSuccessHandler implements ServerAuthenticationSucc
                         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", reissuanceToken.getRefreshToken())
                                 .httpOnly(true)
                                 .path("/")
+                                .secure(true)
+                                .sameSite("None")
                                 .maxAge(1209600)
                                 .build();
                         response.addCookie(refreshCookie);
