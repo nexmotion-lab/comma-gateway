@@ -38,6 +38,11 @@ public class JwtService {
     public static final String BEARER = "Bearer ";
     public static final String ROLE = "Role";
 
+    public DecodedJWT decodedJWT(String token) {
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC512(secretKey)).build();
+        return verifier.verify(token);
+    }
+
     public DecodedJWT verifyAndParseAccessToken(String token) {
         try {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC512(secretKey))

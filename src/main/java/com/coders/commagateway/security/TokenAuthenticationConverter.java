@@ -1,6 +1,7 @@
 package com.coders.commagateway.security;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.coders.commagateway.filter.FilterUtils;
 import com.coders.commagateway.security.exception.InvalidTokenException;
 import com.coders.commagateway.security.exception.TokenMissingException;
@@ -29,48 +30,37 @@ public class TokenAuthenticationConverter implements ServerAuthenticationConvert
 
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
-        Mono<Authentication> accessTokenVerification = Mono.justOrEmpty(exchange.getRequest()
-                        .getCookies().getFirst(jwtService.getAccessHeader()))
-                .map(HttpCookie::getValue)
-                .flatMap(token -> {
-                    try {
-                        return Mono.just(jwtService.verifyAndParseAccessToken(token))
-                                .map(JwtAccessTokenAuthentication::new)
-                                .map(auth -> {
-                                    auth.setAuthenticated(true);
-                                    return auth;
-                                });
-                    } catch (JWTVerificationException e) {
-                        return Mono.error(new InvalidTokenException("AccessToken isn't verify"));
-                    }
-                });
+        return Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst("Authorization"))
+                .flatMap(authHeader -> {
+                    String token = authHeader.replace("Bearer ", "").trim();
 
-        Mono<Authentication> refreshTokenVerification = Mono.justOrEmpty(exchange.getRequest()
-                .getCookies().getFirst(jwtService.getRefreshHeader()))
-                .map(HttpCookie::getValue)
-                .flatMap(token -> {
                     try {
-                        return Mono.just(jwtService.verifyAndParseRefreshToken(token))
-                                .map(JwtRefreshTokenAuthentication::new)
-                                .map(auth -> {
-                                    auth.setAuthenticated(true);
-                                    return auth;
-                                });
-                    } catch (JWTVerificationException e) {
-                        return Mono.error(new InvalidTokenException("RefreshToken isn't verify"));
-                    }
-                });
+                        DecodedJWT decodedJWT = jwtService.decodedJWT(token);
+                        String subject = decodedJWT.getSubject();
 
-        return accessTokenVerification
-                .switchIfEmpty(refreshTokenVerification)
-                .switchIfEmpty(Mono.error(new TokenMissingException("Token is missing")))
-                .onErrorResume(ex -> {
-                    if (ex instanceof InvalidTokenException) {
-                        return refreshTokenVerification
-                                .switchIfEmpty(Mono.error(new InvalidTokenException("Token is missing")));
+                        if ("AccessToken".equals(subject)) {
+                            return Mono.just(jwtService.verifyAndParseAccessToken(token))
+                                    .map(JwtAccessTokenAuthentication::new)
+                                    .map(auth -> {
+                                        auth.setAuthenticated(true);
+                                        return auth;
+                                    }).cast(Authentication.class);
+                        } else if ("RefreshToken".equals(subject)) {
+                            return Mono.just(jwtService.verifyAndParseRefreshToken(token))
+                                    .map(JwtRefreshTokenAuthentication::new)
+                                    .map(auth -> {
+                                        auth.setAuthenticated(true);
+                                        return auth;
+                                    }).cast(Authentication.class);
+                        } else {
+                            return Mono.error(new InvalidTokenException("Token subject is invalid"));
+                        }
+                    } catch (JWTVerificationException e) {
+                        return Mono.error(new InvalidTokenException("Token isn't verified"));
                     }
-                    return Mono.error(ex);
-                });
+                })
+                .switchIfEmpty(Mono.error(new TokenMissingException("Token is missing")));
     }
+
 
 }

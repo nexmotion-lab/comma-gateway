@@ -23,26 +23,21 @@ public class JwtAuthenticationSuccessHandler implements ServerAuthenticationSucc
                 .cast(JwtRefreshTokenAuthentication.class)
                 .flatMap(auth -> {
                     TokenResponse reissuanceToken = auth.getReissuanceToken();
+                    StringBuilder authorizationHeader = new StringBuilder("Bearer ");
+
                     if (reissuanceToken.getAccessToken() != null) {
-                        ResponseCookie accessCookie = ResponseCookie.from("accessToken", reissuanceToken.getAccessToken())
-                                .httpOnly(true)
-                                .path("/")
-                                .secure(true)
-                                .sameSite("None")
-                                .maxAge(3600)
-                                .build();
-                        response.addCookie(accessCookie);
+                        authorizationHeader.append(reissuanceToken.getAccessToken());
                     }
 
                     if (reissuanceToken.getRefreshToken() != null) {
-                        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", reissuanceToken.getRefreshToken())
-                                .httpOnly(true)
-                                .path("/")
-                                .secure(true)
-                                .sameSite("None")
-                                .maxAge(1209600)
-                                .build();
-                        response.addCookie(refreshCookie);
+                        if (authorizationHeader.length() > 7) {
+                            authorizationHeader.append(", ");
+                        }
+                        authorizationHeader.append(reissuanceToken.getRefreshToken());
+                    }
+
+                    if (authorizationHeader.length() > 7) {
+                        response.getHeaders().add("Authorization", authorizationHeader.toString());
                     }
 
                     return Mono.empty();
