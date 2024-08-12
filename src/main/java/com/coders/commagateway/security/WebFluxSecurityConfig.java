@@ -76,6 +76,7 @@ public class WebFluxSecurityConfig {
         ));
         corsConfig.setAllowedHeaders(Arrays.asList("*")); // 모든 헤더 허용
         corsConfig.setAllowCredentials(true); // 쿠키를 포함한 요청 허용
+        corsConfig.setExposedHeaders(Arrays.asList("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfig);
