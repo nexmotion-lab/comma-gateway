@@ -41,8 +41,7 @@ public class JwtAuthenticationSuccessHandler implements ServerAuthenticationSucc
                         response.getHeaders().add("Authorization", authorizationHeader.toString());
                     }
 
-                    response.setStatusCode(HttpStatus.OK);
-                    return response.setComplete();
+                    return webFilterExchange.getChain().filter(exchange);
                 })
                 .switchIfEmpty(
                         webFilterExchange.getChain().filter(exchange)
