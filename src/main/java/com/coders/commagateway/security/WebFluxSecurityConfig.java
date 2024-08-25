@@ -1,11 +1,13 @@
 package com.coders.commagateway.security;
 
 import com.coders.commagateway.security.config.CorsConfig;
+import com.coders.commagateway.security.config.SecurityConfig;
 import com.coders.commagateway.security.exception.ClaimNotFoundException;
 import com.coders.commagateway.security.exception.InvalidTokenException;
 import com.coders.commagateway.security.exception.TokenMissingException;
 import io.netty.handler.codec.http.HttpMethod;
 import lombok.AllArgsConstructor;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -39,10 +41,12 @@ public class WebFluxSecurityConfig {
     private final TokenAuthenticationConverter tokenAuthenticationConverter;
     private final JwtAuthenticationSuccessHandler successHandler;
     private final CorsConfig corsConfig;
+    private final SecurityConfig securityConfig;
 
     @Bean
+    @RefreshScope
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        return http
+        http
                 .exceptionHandling()
                 .authenticationEntryPoint((exchange, ex) -> {
                     exchange.getResponse().getHeaders().add("X-Redirect", "login");
@@ -52,18 +56,26 @@ public class WebFluxSecurityConfig {
                 .cors().configurationSource(corsConfig.corsConfigurationSource())
                 .and()
                 .csrf().disable()
-                .formLogin().disable()
-                .authorizeExchange()
-                .pathMatchers("/login/**").permitAll()
-                .pathMatchers("/oauth2/**").permitAll()
-                .pathMatchers("/token/**").permitAll()
-                .pathMatchers("/home/**").permitAll()
+                .formLogin().disable();
+
+        ServerHttpSecurity.AuthorizeExchangeSpec authorizeExchange = http.authorizeExchange();
+
+        securityConfig.getPathMatchers().getPermitAll().forEach(path ->
+                authorizeExchange.pathMatchers(path).permitAll()
+        );
+
+        securityConfig.getRoles().forEach((role, roleConfig) -> {
+            roleConfig.getPaths().forEach(path ->
+                    authorizeExchange.pathMatchers(path).hasAuthority("ROLE_" + role.toUpperCase())
+            );
+        });
+
+        return authorizeExchange
                 .anyExchange().authenticated()
                 .and()
                 .addFilterAt(authenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }
-
 
     public Mono<Void> writeErrorResponse(ServerHttpResponse response, HttpStatus status, String errorMessage) {
         response.setStatusCode(status);

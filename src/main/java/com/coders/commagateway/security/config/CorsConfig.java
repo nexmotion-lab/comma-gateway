@@ -2,6 +2,7 @@ package com.coders.commagateway.security.config;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -17,6 +18,9 @@ import java.util.List;
 @Component
 @RefreshScope
 @ConfigurationProperties(prefix = "cors")
+@Getter
+@Setter
+@Slf4j
 public class CorsConfig {
 
     private List<String> allowedOrigins;
@@ -39,7 +43,6 @@ public class CorsConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfig);
-
         return source;
     }
 }

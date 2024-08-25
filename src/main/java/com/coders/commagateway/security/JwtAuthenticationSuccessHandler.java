@@ -1,6 +1,7 @@
 package com.coders.commagateway.security;
 
 import com.coders.commagateway.security.jwt.TokenResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.Authentication;
@@ -40,8 +41,11 @@ public class JwtAuthenticationSuccessHandler implements ServerAuthenticationSucc
                         response.getHeaders().add("Authorization", authorizationHeader.toString());
                     }
 
-                    return Mono.empty();
+                    response.setStatusCode(HttpStatus.OK);
+                    return response.setComplete();
                 })
-                .then(webFilterExchange.getChain().filter(exchange));
+                .switchIfEmpty(
+                        webFilterExchange.getChain().filter(exchange)
+                );
     }
 }
