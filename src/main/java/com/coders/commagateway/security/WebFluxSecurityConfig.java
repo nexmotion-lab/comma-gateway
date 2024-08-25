@@ -1,5 +1,6 @@
 package com.coders.commagateway.security;
 
+import com.coders.commagateway.security.config.CorsConfig;
 import com.coders.commagateway.security.exception.ClaimNotFoundException;
 import com.coders.commagateway.security.exception.InvalidTokenException;
 import com.coders.commagateway.security.exception.TokenMissingException;
@@ -37,6 +38,7 @@ public class WebFluxSecurityConfig {
     private final TokenReactiveAuthenticationManagerResolver tokenReactiveAuthenticationManagerResolver;
     private final TokenAuthenticationConverter tokenAuthenticationConverter;
     private final JwtAuthenticationSuccessHandler successHandler;
+    private final CorsConfig corsConfig;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -47,7 +49,7 @@ public class WebFluxSecurityConfig {
                     return writeErrorResponse(exchange.getResponse(), HttpStatus.FOUND, ex.getMessage());
                 })
                 .and()
-                .cors().configurationSource(corsConfigurationSource())
+                .cors().configurationSource(corsConfig.corsConfigurationSource())
                 .and()
                 .csrf().disable()
                 .formLogin().disable()
@@ -62,28 +64,6 @@ public class WebFluxSecurityConfig {
                 .build();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:8100", "https://localhost", "http://192.168.0.92:8100", "http://172.29.11.2:8100"));
-        corsConfig.setMaxAge(3600L); // pre-flight cache duration
-        corsConfig.setAllowedMethods(Arrays.asList(
-                HttpMethod.GET.name(),
-                HttpMethod.POST.name(),
-                HttpMethod.PUT.name(),
-                HttpMethod.PATCH.name(),
-                HttpMethod.DELETE.name(),
-                HttpMethod.OPTIONS.name()
-        ));
-        corsConfig.setAllowedHeaders(Arrays.asList("*")); // 모든 헤더 허용
-        corsConfig.setAllowCredentials(true); // 쿠키를 포함한 요청 허용
-        corsConfig.setExposedHeaders(Arrays.asList("Authorization"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfig);
-
-        return source;
-    }
 
     public Mono<Void> writeErrorResponse(ServerHttpResponse response, HttpStatus status, String errorMessage) {
         response.setStatusCode(status);
