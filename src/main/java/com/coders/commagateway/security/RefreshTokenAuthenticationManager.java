@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -53,8 +54,10 @@ public class RefreshTokenAuthenticationManager implements ReactiveAuthentication
                                 log.error("Error in jwtCreateService: {}", ex.getMessage(), ex);
                                 return Mono.error(new AuthenticationServiceException("IPC Error", ex));
                             })
-                            .switchIfEmpty(Mono
-                                    .defer(() -> Mono.error(new IllegalStateException("비어있음"))));
+                            .switchIfEmpty(
+                                    Mono.defer(() -> Mono.error(new AuthenticationException("비어있음") {
+                                    }))
+                            );
                 });
     }
 
