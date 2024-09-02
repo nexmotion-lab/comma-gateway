@@ -24,7 +24,7 @@ import java.util.Map;
 public class RefreshTokenAuthenticationManager implements ReactiveAuthenticationManager {
 
     private final JwtCreateService jwtCreateService;
-    private final JwtService jwtService
+    private final JwtService jwtService;
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
