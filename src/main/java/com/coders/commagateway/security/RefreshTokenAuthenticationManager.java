@@ -5,6 +5,7 @@ import com.coders.commagateway.security.exception.ClaimRoleNotFoundException;
 import com.coders.commagateway.security.exception.CreateTokenException;
 import com.coders.commagateway.security.exception.InvalidTokenException;
 import com.coders.commagateway.security.jwt.JwtCreateService;
+import com.coders.commagateway.security.jwt.JwtService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class RefreshTokenAuthenticationManager implements ReactiveAuthenticationManager {
 
     private final JwtCreateService jwtCreateService;
+    private final JwtService jwtService
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
@@ -47,6 +49,8 @@ public class RefreshTokenAuthenticationManager implements ReactiveAuthentication
                                 }
 
                                 auth.setReissuanceToken(response);
+                                auth.setRole(jwtService.verifyAndParseAccessToken(response.getAccessToken())
+                                        .getClaim(JwtService.ROLE).asString());
 
                                 return Mono.just(auth);
                             })

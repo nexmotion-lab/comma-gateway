@@ -20,6 +20,7 @@ public class JwtTokenAuthentication implements Authentication {
     private String token;
     private boolean isVerified = false;
     private String email;
+    @Setter
     private String role;
 
 

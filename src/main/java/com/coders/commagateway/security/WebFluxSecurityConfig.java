@@ -98,7 +98,7 @@ public class WebFluxSecurityConfig {
     private Mono<Void> authenticationFailureHandler(WebFilterExchange exchange, AuthenticationException ex) {
         if (ex instanceof TokenMissingException) {
             exchange.getExchange().getResponse().getHeaders().add("X-Redirect", "login");
-            return writeErrorResponse(exchange.getExchange().getResponse(), HttpStatus.FOUND, ex.getMessage());
+            return writeErrorResponse(exchange.getExchange().getResponse(), HttpStatus.UNAUTHORIZED, ex.getMessage());
         } else if (ex instanceof InvalidTokenException) {
             exchange.getExchange().getResponse().getHeaders().add("X-Redirect", "login");
             return writeErrorResponse(exchange.getExchange().getResponse(), HttpStatus.UNAUTHORIZED, ex.getMessage());
