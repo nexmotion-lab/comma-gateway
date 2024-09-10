@@ -52,17 +52,12 @@ public class ApiService {
                 .onStatus(HttpStatusCode::is5xxServerError, clientResponse ->
                         Mono.error(new RuntimeException("5xx Client Error"))
                 )
-                .bodyToMono(returnType)
-                .doOnError(ex -> log.error("API Call Failed: {}", ex.getMessage(), ex));
+                .bodyToMono(returnType);
     }
 
     public <T, S> Mono<T> getDataContainBody(String serviceId, String path, Class<T> returnType, S data, String key) {
         WebClient webClient = webClientBuilder
                 .baseUrl("lb://" + serviceId)
-                .filter((request, next) -> {
-                    return next.exchange(request)
-                            .doOnNext(response -> log.info("Response status: {}", response.statusCode()));
-                })
                 .build();
 
         String uri = UriComponentsBuilder.fromPath(path)
@@ -81,8 +76,6 @@ public class ApiService {
                 .onStatus(HttpStatusCode::is5xxServerError, clientResponse ->
                         Mono.error(new RuntimeException("5xx Client Error"))
                 )
-                .bodyToMono(returnType)
-                .doOnError(ex -> log.error("API Call Failed: {}", ex.getMessage(), ex));
+                .bodyToMono(returnType);
     }
-
 }
