@@ -15,7 +15,6 @@ public class FindIdService {
 
     public Mono<String> findAccountIdByEmail(String email) {
         return apiService.getDataContainBody(ApiService.AUTHENTICATION_URI,
-                        "/account/findByEmail", String.class, email, "email")
-                .doOnError(ex -> log.error("API Call Failed: {}", ex.getMessage(), ex));
+                        "/account/findByEmail", String.class, email, "email");
     }
 }

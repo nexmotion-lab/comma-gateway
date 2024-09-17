@@ -18,8 +18,6 @@ public class JwtCreateService {
         TokenRequest refreshToken = new TokenRequest();
         refreshToken.setRefreshToken(token);
         return apiService.fetchDataContainBody(ApiService.AUTHENTICATION_URI,
-                        "/jwt/createAccessAndRefreshToken/" + email, TokenResponse.class, refreshToken)
-                .doOnNext(response -> log.info("API Response: {}", response))
-                .doOnError(ex -> log.error("API Call Failed: {}", ex.getMessage(), ex));
+                        "/jwt/createAccessAndRefreshToken/" + email, TokenResponse.class, refreshToken);
     }
 }

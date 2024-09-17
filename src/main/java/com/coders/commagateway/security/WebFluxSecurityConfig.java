@@ -60,15 +60,21 @@ public class WebFluxSecurityConfig {
 
         ServerHttpSecurity.AuthorizeExchangeSpec authorizeExchange = http.authorizeExchange();
 
-        securityConfig.getPathMatchers().getPermitAll().forEach(path ->
-                authorizeExchange.pathMatchers(path).permitAll()
-        );
-
-        securityConfig.getRoles().forEach((role, roleConfig) -> {
-            roleConfig.getPaths().forEach(path ->
-                    authorizeExchange.pathMatchers(path).hasAuthority("ROLE_" + role.toUpperCase())
+        if (securityConfig.getPathMatchers() != null && securityConfig.getPathMatchers().getPermitAll() != null) {
+            securityConfig.getPathMatchers().getPermitAll().forEach(path ->
+                    authorizeExchange.pathMatchers(path).permitAll()
             );
-        });
+        }
+
+        if (securityConfig.getRoles() != null) {
+            securityConfig.getRoles().forEach((role, roleConfig) -> {
+                if (roleConfig != null && roleConfig.getPaths() != null) {
+                    roleConfig.getPaths().forEach(path ->
+                            authorizeExchange.pathMatchers(path).hasAuthority("ROLE_" + role.toUpperCase())
+                    );
+                }
+            });
+        }
 
         return authorizeExchange
                 .anyExchange().authenticated()

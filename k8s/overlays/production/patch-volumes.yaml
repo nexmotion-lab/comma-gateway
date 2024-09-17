@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: convert-cert
+          image: alpine:3.13
+          command: [ "/bin/sh", "-c" ]
+          args:
+            - apk --no-cache add openssl &&
+              openssl pkcs12 -export -in /etc/ssl/certs/tls.crt -inkey /etc/ssl/certs/tls.key -out /etc/ssl/certs/keystore.p12 -name tomcat -passout pass:sunwoo123*;
+          volumeMounts:
+            - name: tls-secret
+              mountPath: "/etc/ssl/certs"
+      containers:
+        - name: gateway
+          volumeMounts:
+            - name: tls-secret
+              mountPath: "/etc/ssl/certs"
+              readOnly: true
+      volumes:
+        - name: tls-secret
+          secret:
+            secretName: comma-tls
+
+
+
+      

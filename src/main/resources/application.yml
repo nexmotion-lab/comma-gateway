@@ -1,38 +1,102 @@
+server:
+  port: 9000
+  netty:
+    connection-timeout: 2s
+    idle-timeout: 15s
+  shutdown: graceful
+
+
 spring:
   application:
     name: gateway
-  profiles:
-    active: dev
-  cloud:
-    config:
-      fail-fast: true
-      retry:
-        initial-interval: 10000
-        max-attempts: 5
-        multiplier: 1.5
-      request-connect-timeout: 2000
-      request-read-timeout: 10000
-  config:
-    import: "configserver:http://config-server:8087"
+  lifecycle:
+    timeout-per-shutdown-phase: 15s
   main:
     web-application-type: reactive
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 2000
+        response-timeout: 5s
+        pool:
+          type: elastic
+          max-idle-time: 15s
+          max-life-time: 60s
+      default-filters:
+        - name: Retry
+          args:
+            retries: 3
+            methods: GET
+            series: SERVER_ERROR
+            exceptions: java.io.IOException, java.util.concurrent.TimeoutException
+            backoff:
+              firstBackoff: 50ms
+              maxBackOff: 500ms
+              factor: 2
+              basedOnPreviousValue: false
+      routes:
+        - id: psy-service
+          uri: ${PSY_SERVICE_URL:http://localhost:9002}
+          predicates:
+            - Path=/api/psy/**
+          filters:
+            - AddAuthInfo
+            - RewritePath=^/api/psy/(?<path>.*), /api/v1/$\{path}
+            - name: CircuitBreaker
+              args:
+                name: CircuitBreaker
+        - id: authentication
+          uri: ${AUTH_SERVICE_URL:http://localhost:9001}
+          predicates:
+            - Path=/login/**, /oauth2/**
+        - id: authentication-account
+          uri: ${AUTH_SERVICE_URL:http://localhost:9001}
+          predicates:
+            - Path=/api/account/**
+          filters:
+            - AddAuthInfo
+            - RewritePath=^/api/account/(?<path>.*), /account/$\{path}
+            - name: CircuitBreaker
+              args:
+                name: CircuitBreaker
+        - id: diary-service
+          uri: ${DIARY_SERVICE_URL:http://localhost:9002}
+          predicates:
+            - Path=/api/diary/**
+          filters:
+            - AddAuthInfo
+            - RewritePath=^/api/diary/(?<path>.*), /api/v1/$\{path}
+            - name: CircuitBreaker
+              args:
+                name: CircuitBreaker
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 20
+        permittedNumberOfCallsInHalfOpenState: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 15000
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 5s
 
 management:
-  endpoint:
-    gateway:
-      enabled: true
   endpoints:
     web:
       exposure:
-        include: "*"
-
-logging:
-  level:
-    org.springframework.security: DEBUG
-    org.springframework.cloud.gateway: DEBUG
-    com.netflix: WARN
-    org.springframework.web: WARN
-
+        include: configprops, env, gateway, health, heapdump, info, loggers, mappings, prometheus
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState
 
 jwt:
   secretKey: efwalfjiiljgkneiegojioa8e

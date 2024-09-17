@@ -1,0 +1,39 @@
+security:
+  roles:
+    user:
+      paths:
+        - /api/psy/**
+        - /api/diary/**
+    admin:
+      paths:
+        - /api/admin/**
+  pathMatchers:
+    permitAll:
+      - /login/**
+      - /oauth2/**
+      - /token/resend/**
+      - /actuator/**
+
+cors:
+  allowed-origins:
+    - http://localhost:8100
+    - https://localhost
+    - http://192.168.0.92:8100
+    - http://172.29.11.2:8100
+    - http://192.168.219.105:8100
+    - http://192.168.219.104:8100
+    - capacitor://localhost
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - "*"
+  allow-credentials: true
+  exposed-headers:
+    - Authorization
+    - X-Redirect
+  max-age: 3600

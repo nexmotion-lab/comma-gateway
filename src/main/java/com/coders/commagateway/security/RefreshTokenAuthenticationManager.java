@@ -41,7 +41,6 @@ public class RefreshTokenAuthenticationManager implements ReactiveAuthentication
                         return Mono.error(new ClaimEmailNotFoundException("Email is not found"));
                     }
                     return jwtCreateService.createRefreshAndAccessToken(auth.getPrincipal().toString(), auth.getCredentials().toString())
-                            .doOnNext(response -> log.info("생성된 엑세스 토큰: {}, 리프레시 토큰: {}", response.getAccessToken(), response.getRefreshToken()))
                             .flatMap(response -> {
 
                                 if (response.getAccessToken() == null || response.getRefreshToken() == null) {
@@ -54,12 +53,11 @@ public class RefreshTokenAuthenticationManager implements ReactiveAuthentication
 
                                 return Mono.just(auth);
                             })
-                            .onErrorResume(ex -> {
-                                log.error("Error in jwtCreateService: {}", ex.getMessage(), ex);
-                                return Mono.error(new AuthenticationServiceException("IPC Error", ex));
+                            .onErrorResume(InvalidTokenException.class, ex -> {
+                                return Mono.error(new AuthenticationServiceException(ex.getMessage(), ex));
                             })
                             .switchIfEmpty(
-                                    Mono.defer(() -> Mono.error(new AuthenticationException("비어있음") {
+                                    Mono.defer(() -> Mono.error(new AuthenticationException("IPC Error") {
                                     }))
                             );
                 });
