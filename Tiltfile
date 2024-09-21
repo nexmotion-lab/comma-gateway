@@ -1,4 +1,4 @@
-docker_build('sunwoo3856/gateway', '.')
+docker_build('sunwoo3856/gateway', '/docker')
 
 k8s_yaml(kustomize('k8s/overlays/development'))
 

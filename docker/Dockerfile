@@ -2,18 +2,18 @@ FROM eclipse-temurin:17-jdk-alpine as build
 WORKDIR /app
 
 RUN apk add --no-cache dos2unix
-COPY gradlew .
+COPY ../gradlew .
 RUN dos2unix gradlew
 RUN chmod +x gradlew
-COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
+COPY ../gradle gradle
+COPY ../build.gradle .
+COPY ../settings.gradle .
 RUN chmod +x ./gradlew
 
 RUN ./gradlew --version
 RUN ./gradlew dependencies
 
-COPY src src
+COPY ../src src
 RUN ./gradlew build --no-daemon
 
 FROM eclipse-temurin:17-jdk-alpine as jre-build
