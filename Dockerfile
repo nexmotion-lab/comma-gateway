@@ -43,6 +43,7 @@ COPY --from=jre-build /javaruntime $JAVA_HOME
 
 WORKDIR /app
 COPY --from=jre-build /app/app.jar /app/app.jar
+COPY opentelemetry-javaagent.jar /workspace/BOOT-INF/lib/opentelemetry-javaagent-1.33.3.jar
 
 CMD ["java", "-jar", "/app/app.jar"]
 

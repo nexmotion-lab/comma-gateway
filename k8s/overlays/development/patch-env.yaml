@@ -10,4 +10,11 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: dev
-
+            - name: JAVA_TOOL_OPTIONS
+              value: "-javaagent:/workspace/BOOT-INF/lib/opentelemetry-javaagent-1.33.3.jar"
+            - name: OTEL_SERVICE_NAME
+              value: gateway
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://tempo.observability-stack.svc.cluster.local:4317
+            - name: OTEL_METRICS_EXPORTER
+              value: none

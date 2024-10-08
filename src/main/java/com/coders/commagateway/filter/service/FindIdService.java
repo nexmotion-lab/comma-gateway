@@ -14,7 +14,7 @@ public class FindIdService {
     private final ApiService apiService;
 
     public Mono<String> findAccountIdByEmail(String email) {
-        return apiService.getDataContainBody(ApiService.AUTHENTICATION_URI,
+        return apiService.getDataContainBody(
                         "/account/findByEmail", String.class, email, "email");
     }
 }

@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
         app: gateway
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "9000"
     spec:
       containers:
         - name: gateway
@@ -25,7 +29,7 @@ spec:
                 command: [ "sh", "-c", "sleep 5"]
           env:
             - name: AUTH_SERVICE_URL
-              value: http://authentication
+              value: http://auth-service
             - name: PSY_SERVICE_URL
               value: http://psy-service
             - name: DIARY_SERVICE_URL
@@ -36,13 +40,15 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: 9000
-            initialDelaySeconds: 10
-            periodSeconds: 5
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: 9000
-            initialDelaySeconds: 5
+            initialDelaySeconds: 20
             periodSeconds: 15
           volumeMounts:
             - name: gateway-config-volume

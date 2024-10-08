@@ -17,7 +17,7 @@ public class JwtCreateService {
     public Mono<TokenResponse> createRefreshAndAccessToken(String email, String token) {
         TokenRequest refreshToken = new TokenRequest();
         refreshToken.setRefreshToken(token);
-        return apiService.fetchDataContainBody(ApiService.AUTHENTICATION_URI,
+        return apiService.fetchDataContainBody(
                         "/jwt/createAccessAndRefreshToken/" + email, TokenResponse.class, refreshToken);
     }
 }

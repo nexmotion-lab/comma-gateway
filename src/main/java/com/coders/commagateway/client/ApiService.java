@@ -3,7 +3,9 @@ package com.coders.commagateway.client;
 import com.coders.commagateway.security.exception.InvalidTokenException;
 import com.coders.commagateway.security.jwt.TokenResponse;
 import lombok.AllArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -24,10 +26,11 @@ public class ApiService {
 
     private final WebClient.Builder webClientBuilder;
 
-    public static String AUTHENTICATION_URI = "authentication";
+    @Value("${AUTH_SERVICE_URL:http://localhost:9001}")
+    public final String AUTHENTICATION_URI = "authentication";
 
-    public <T, S> Mono<T> fetchDataContainBody(String serviceId, String path, Class<T> returnType, S data) {
-        WebClient webClient = webClientBuilder.baseUrl("lb://" + serviceId).build();
+    public <T, S> Mono<T> fetchDataContainBody(String path, Class<T> returnType, S data) {
+        WebClient webClient = webClientBuilder.baseUrl(AUTHENTICATION_URI).build();
 
         return webClient.post()
                 .uri(path)
@@ -44,9 +47,9 @@ public class ApiService {
                         exception -> Mono.empty());
     }
 
-    public <T, S> Mono<T> getDataContainBody(String serviceId, String path, Class<T> returnType, S data, String key) {
+    public <T, S> Mono<T> getDataContainBody(String path, Class<T> returnType, S data, String key) {
         WebClient webClient = webClientBuilder
-                .baseUrl("lb://" + serviceId)
+                .baseUrl(AUTHENTICATION_URI)
                 .build();
 
         return webClient.get()
