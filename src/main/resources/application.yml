@@ -112,11 +112,13 @@ management:
 
 
 jwt:
-  secretKey: efwalfjiiljgkneiegojioa8e
+  secretKey: ${JWT_SECRET_KEY}
   access:
-    header: AccessToken
+    expiration: 3600000
+    header: Authorization
   refresh:
-    header: RefreshToken
+    expiration: 1209600000
+    header: Authorization-refresh
 
 logging:
   group:

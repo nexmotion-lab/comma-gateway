@@ -36,6 +36,11 @@ spec:
               value: http://diary-service
             - name: SPRING_CONFIG_ADDITIONAL_LOCATION
               value: "file:/config/"
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: secretKey
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness

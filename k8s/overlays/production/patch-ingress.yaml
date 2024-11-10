@@ -8,7 +8,7 @@ metadata:
           deny all;
           return 403;
         }
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: "letsencrypt-dns"
 spec:
   tls:
     - hosts:

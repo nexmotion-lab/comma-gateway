@@ -15,3 +15,8 @@ configMapGenerator:
     files:
       - application-prod.yml
     name: gateway-config
+
+secretGenerator:
+  - name: cloudflare-api-key
+    literals:
+      - api-key=$(CLOUDFLARE_API_KEY)
