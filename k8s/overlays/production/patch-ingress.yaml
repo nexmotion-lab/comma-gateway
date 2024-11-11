@@ -3,6 +3,7 @@ kind: Ingress
 metadata:
   name: comma-ingress
   annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
     nginx.ingress.kubernetes.io/server-snippet: |
         location ~* "/actuator" {
           deny all;

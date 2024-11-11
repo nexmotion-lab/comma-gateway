@@ -1,5 +1,2 @@
 ssl:
-  enabled: true
-  key-store: /etc/ssl/certs/keystore.p12
-  key-store-password: sunwoo123*
-  key-store-type: PKCS12
+  enabled: false
