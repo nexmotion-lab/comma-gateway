@@ -20,9 +20,10 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: sunwoo3856/gateway:latest
+          image: sunwoo3856/gateway
           ports:
             - containerPort: 9000
+          imagePullPolicy: Always
           lifecycle:
             preStop:
               exec:

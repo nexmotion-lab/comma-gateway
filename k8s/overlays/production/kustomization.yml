@@ -5,9 +5,9 @@ resources:
   - ../../base
   - cluster-issuer.yaml
 
-patches:
-  - path: patch-env.yaml
-  - path: patch-ingress.yaml
+patchesStrategicMerge:
+  - patch-env.yaml
+  - patch-ingress.yaml
 
 configMapGenerator:
   - behavior: merge
@@ -15,7 +15,4 @@ configMapGenerator:
       - application-prod.yml
     name: gateway-config
 
-secretGenerator:
-  - name: cloudflare-api-key
-    literals:
-      - api-key=$(CLOUDFLARE_API_KEY)
+
