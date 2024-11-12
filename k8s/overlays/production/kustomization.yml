@@ -5,14 +5,12 @@ resources:
   - ../../base
   - cluster-issuer.yaml
 
-patchesStrategicMerge:
-  - patch-env.yaml
-  - patch-ingress.yaml
+patches:
+  - path: patch-env.yaml
+  - path: patch-ingress.yaml
 
 configMapGenerator:
   - behavior: merge
     files:
       - application-prod.yml
     name: gateway-config
-
-
